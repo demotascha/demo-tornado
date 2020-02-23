@@ -1,5 +1,6 @@
 from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
+import json
 
 tweets = []
 
@@ -11,9 +12,15 @@ class UserTweets(RequestHandler):
   def get(self):
     self.write({'tweets': tweets})
 
+class UserTweet(RequestHandler):
+  def post(self, _):
+    tweets.append(json.loads(self.request.body))
+    self.write({'message': 'new tweet added'})
+
 def make_app():
   urls = [
-    ("/", UserTweets)
+    ("/", UserTweets),
+    (r"/tweet/([^/]+)?", UserTweet)
   ]
   return Application(urls, debug=True)
 
