@@ -17,6 +17,12 @@ class UserTweet(RequestHandler):
     tweets.append(json.loads(self.request.body))
     self.write({'message': 'new tweet added'})
 
+  def delete(self, id):
+    global tweets
+    new_items = [tweet for tweet in tweets if tweet['id'] is not int(id)]
+    tweets = new_items
+    self.write({'message': 'Tweet with id %s was deleted' % id})
+
 def make_app():
   urls = [
     ("/", UserTweets),
