@@ -2,6 +2,7 @@ from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
 import json
 
+likes = []
 reply = []
 tweets = []
 
@@ -28,7 +29,7 @@ class MainHandler(RequestHandler):
 
 class UserTweets(RequestHandler):
   def get(self):
-    self.write({'tweets': tweets, 'reply': reply})
+    self.write({'tweets': tweets, 'reply': reply, 'likes': likes})
 
 class UserTweet(RequestHandler):
   def post(self, _):
@@ -55,10 +56,16 @@ class UserReply(RequestHandler):
     reply.append(json.loads(self.request.body))
     self.write({'message': 'add tweet replied'})
 
+class UserLike(RequestHandler):
+  def post(self, _):
+    likes.append(json.loads(self.request.body))
+    self.write({'message': 'add tweet liked'})
+
 def make_app():
   urls = [
     ("/", UserTweets),
     (r"/tweet/([^/]+)?", UserTweet),
+    (r"/tweet/like/([^/]+)?", UserLike),
     (r"/tweet/reply/([^/]+)?", UserReply)
   ]
   return Application(urls, debug=True)
