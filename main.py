@@ -28,15 +28,15 @@ class MainHandler(RequestHandler):
     self.write({'message': 'hello world'})
 
 class UserTweets(RequestHandler):
-  def get(self):
+  async def get(self):
     self.write({'tweets': tweets, 'reply': reply, 'likes': likes})
 
 class UserTweet(RequestHandler):
-  def post(self, _):
+  async def post(self, _):
     tweets.append(json.loads(self.request.body))
     self.write({'message': 'new tweet added'})
 
-  def put(self, id):
+  async def put(self, id):
     picked_item = get_filtered(id)
     if picked_item:
       tweets.remove(picked_item[0])
@@ -45,19 +45,19 @@ class UserTweet(RequestHandler):
       tweets.append(tweet)
       self.write({'message': 'Tweet with id %s was updated.' % id})
 
-  def delete(self, id):
+  async def delete(self, id):
     global tweets
     new_tweets = [tweet for tweet in tweets if tweet['id'] is not int(id)]
     tweets = new_tweets
     self.write({'message': 'Tweet with id %s was deleted' % id})
 
 class UserReply(RequestHandler):
-  def post(self, _):
+  async def post(self, _):
     reply.append(json.loads(self.request.body))
     self.write({'message': 'add tweet replied'})
 
 class UserLike(RequestHandler):
-  def post(self, _):
+  async def post(self, _):
     likes.append(json.loads(self.request.body))
     self.write({'message': 'add tweet liked'})
 
