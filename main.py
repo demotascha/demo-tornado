@@ -4,6 +4,23 @@ import json
 
 tweets = []
 
+
+def get_json_arg(req_body, fields):
+  """
+  Gets argument from JSON
+  """
+  results = {}
+  for i in fields:
+    results[i] = json.loads(req_body).get(i)
+  return results
+
+def get_filtered(id):
+  """
+  Filters list to pick one tweet
+  """
+  result = [tweet for tweet in tweets if tweet['user_id'] == int(id)]
+  return result
+
 class MainHandler(RequestHandler):
   async def get(self):
     self.write({'message': 'hello world'})
@@ -16,6 +33,15 @@ class UserTweet(RequestHandler):
   def post(self, _):
     tweets.append(json.loads(self.request.body))
     self.write({'message': 'new tweet added'})
+
+  def put(self, id):
+    picked_item = get_filtered(id)
+    if picked_item:
+      tweets.remove(picked_item[0])
+      tweet = get_json_arg(self.request.body, ['text'])
+      tweet['user_id'] = int(id)
+      tweets.append(tweet)
+      self.write({'message': 'Tweet with id %s was updated.' % id})
 
   def delete(self, id):
     global tweets
