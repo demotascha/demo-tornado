@@ -19,8 +19,8 @@ class UserTweet(RequestHandler):
 
   def delete(self, id):
     global tweets
-    new_items = [tweet for tweet in tweets if tweet['id'] is not int(id)]
-    tweets = new_items
+    new_tweets = [tweet for tweet in tweets if tweet['id'] is not int(id)]
+    tweets = new_tweets
     self.write({'message': 'Tweet with id %s was deleted' % id})
 
 def make_app():
