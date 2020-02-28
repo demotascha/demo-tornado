@@ -13,7 +13,8 @@ CREATE TABLE connections (
 	followee_id int references users(user_id),
 	create_at date
 );
-CREATE UNIQUE INDEX connections_follow_index ON connections (follower_id,followee_id);
+CREATE INDEX connections_follower_index ON connections (follower_id);
+CREATE INDEX connections_followee_index ON connections (followee_id);
 
 CREATE TABLE tweets (
 	tweet_id integer generated always as identity primary key,
