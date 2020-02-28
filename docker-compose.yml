@@ -2,11 +2,13 @@ version: '3.5'
 
 services:
     demo-tornado: 
-        build: .
+        build:
+            context: .
+            dockerfile: ./Dockerfile
         ports:
             - "8000:8080"
-        volumes:
-            - .:/usr/src/app
+        # volumes:
+        #     - .:/usr/src/app
         restart: always
         depends_on:
             - db
