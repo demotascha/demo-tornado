@@ -1,13 +1,18 @@
 from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
-import json
+from dotenv import load_dotenv
 from psycopg2 import connect
 
+import json
+import os
+
+load_dotenv()
+
 conn = connect(
-    dbname="postgres",
-    user="postgres",
-    host="db",
-    password="mysecretpassword"
+  host = os.getenv("HOST"),
+  dbname = os.getenv("POSTGRES_DB"),
+  user = os.getenv("POSTGRES_USER"),
+  password = os.getenv("POSTGRES_PASSWORD")
 )
 
 # declare a cursor object from the connection
@@ -22,12 +27,12 @@ def get_json_arg(req_body, fields):
     results[i] = json.loads(req_body).get(i)
   return results
 
-def get_filtered(id):
-  """
-  Filters list to pick one tweet
-  """
-  result = [tweet for tweet in tweets if tweet['user_id'] == int(id)]
-  return result
+# def get_filtered(id):
+#   """
+#   Filters list to pick one tweet
+#   """
+#   result = [tweet for tweet in tweets if tweet['user_id'] == int(id)]
+#   return result
 
 class MainHandler(RequestHandler):
   async def get(self):
@@ -69,32 +74,27 @@ class UserTweets(RequestHandler):
 
 class UserTweet(RequestHandler):
   async def post(self, _):
-    tweets.append(json.loads(self.request.body))
+    # tweets.append(json.loads(self.request.body))
     self.write({'message': 'new tweet added'})
 
   async def put(self, id):
-    picked_item = get_filtered(id)
-    if picked_item:
-      tweets.remove(picked_item[0])
-      tweet = get_json_arg(self.request.body, ['text'])
-      tweet['user_id'] = int(id)
-      tweets.append(tweet)
+    # picked_item = get_filtered(id)
+    # if picked_item:
+    #   tweets.remove(picked_item[0])
+    #   tweet = get_json_arg(self.request.body, ['text'])
+    #   tweet['user_id'] = int(id)
+    #   tweets.append(tweet)
       self.write({'message': 'Tweet with id %s was updated.' % id})
 
   async def delete(self, id):
-    global tweets
-    new_tweets = [tweet for tweet in tweets if tweet['id'] is not int(id)]
-    tweets = new_tweets
     self.write({'message': 'Tweet with id %s was deleted' % id})
 
 class UserReply(RequestHandler):
   async def post(self, _):
-    reply.append(json.loads(self.request.body))
     self.write({'message': 'add tweet replied'})
 
 class UserLike(RequestHandler):
   async def post(self, _):
-    likes.append(json.loads(self.request.body))
     self.write({'message': 'add tweet liked'})
 
 def make_app():
