@@ -1,11 +1,17 @@
 from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
 import json
+from psycopg2 import connect
 
-likes = []
-reply = []
-tweets = []
+conn = connect(
+    dbname="postgres",
+    user="postgres",
+    host="db",
+    password="mysecretpassword"
+)
 
+# declare a cursor object from the connection
+cursor = conn.cursor()
 
 def get_json_arg(req_body, fields):
   """
@@ -29,7 +35,37 @@ class MainHandler(RequestHandler):
 
 class UserTweets(RequestHandler):
   async def get(self):
-    self.write({'tweets': tweets, 'reply': reply, 'likes': likes})
+    favorites = []
+    replies = []
+    tweets = []
+    # tweet
+    cursor.execute(
+      f"SELECT tweet_id, tweet_txt FROM tweets;")
+    for i, record in enumerate(cursor):
+      tweet = {}
+      tweet["tweet_id"] = record[0]
+      tweet["tweet_txt"] = record[1]
+      tweets.append(tweet)
+
+    # replies
+    cursor.execute(
+        f"SELECT user_id, tweet_id, reply_text, create_at FROM reply;")
+    for i, record in enumerate(cursor):
+      reply = {}
+      reply["user_id"] = record[0]
+      reply["tweet_id"] = record[1]
+      reply["reply_text"] = record[2]
+      replies.append(reply)
+
+    # favorites
+    cursor.execute(
+        f"SELECT user_id, tweet_id, create_at FROM favorites;")
+    for i, record in enumerate(cursor):
+      favorite = {}
+      favorite["user_id"] = record[0]
+      favorite["tweet_id"] = record[1]
+      favorites.append(favorite)
+    self.write({'tweets': tweets, 'reply': replies, 'favorites': favorites})
 
 class UserTweet(RequestHandler):
   async def post(self, _):
